@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#070806" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23090b07'/%3E%3Ccircle cx='10' cy='13' r='3' fill='%23e6b45a'/%3E%3Ccircle cx='22' cy='13' r='3' fill='%23e6b45a'/%3E%3Cpath d='M9 21h14l-3 5H12z' fill='%23c64234'/%3E%3C/svg%3E" />
+  <meta name="description" content="Five Nights at Freddy's: Signal Lost — бесконечные ночи в пиццерии. 1 дверь. 4 камеры. 100 HP. Не доверяй тишине." />
+  <title>FNAF: Signal Lost</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ================= ЛОББИ ================= -->
+    <section id="lobby" class="screen is-active" aria-label="Лобби">
+      <canvas id="lobby-canvas" class="scene-canvas"></canvas>
+      <div class="lobby-grain" aria-hidden="true"></div>
+      <div class="lobby-vignette" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="topbar-brand">
+          <span class="brand-mark">SL</span>
+          <span>FAZBEAR // SECURITY</span>
+        </div>
+        <div class="topbar-stats">
+          <button id="btn-sound" class="icon-btn" type="button" aria-label="Звук" title="Звук">
+            <span class="sound-icon">◖))</span>
+          </button>
+          <div class="coin-chip" title="Монеты">
+            <span class="coin-dot"></span>
+            <b id="lobby-coins">0</b>
+            <small>монет</small>
+          </div>
+        </div>
+      </header>
+
+      <div class="lobby-layout">
+        <aside class="lobby-side lobby-note" aria-hidden="true">
+          <div class="doodle">НЕ<br />ДОВЕРЯЙ<br />ТИШИНЕ</div>
+          <div class="side-arrow">↘</div>
+        </aside>
+
+        <div class="terminal-wrap">
+          <div class="terminal">
+            <div class="terminal-bezel">
+              <div class="terminal-screen">
+                <div class="screen-glitch" aria-hidden="true"></div>
+                <div class="screen-scanlines" aria-hidden="true"></div>
+
+                <div class="terminal-meta">
+                  <span><i class="rec-dot"></i> FAZBEAR ENTERTAINMENT</span>
+                  <span>СМЕНА №<b id="shift-no">0001</b></span>
+                </div>
+
+                <h1 class="game-title">
+                  <span class="title-top">Five Nights at Freddy's</span>
+                  <span class="title-main" data-text="SIGNAL LOST">SIGNAL LOST</span>
+                  <span class="title-sub">СИСТЕМА ОХРАНЫ v.5.0</span>
+                </h1>
+
+                <div class="night-panel">
+                  <div class="night-panel-label">ТЕКУЩАЯ СМЕНА</div>
+                  <div class="night-row">
+                    <div class="night-big">НОЧЬ <b id="lobby-night">1</b></div>
+                    <div class="speed-tag">Скорость монстров <b id="lobby-speed">+0%</b></div>
+                  </div>
+                  <div class="night-progress"><span id="night-progress-fill"></span></div>
+                  <div class="night-hint" id="lobby-hint">Смена начинается в 12:00 AM. Продержись до 6:00 AM.</div>
+                </div>
+
+                <button id="btn-start" class="start-btn" type="button">
+                  <span class="start-btn-label">НАЧАТЬ СМЕНУ</span>
+                  <span class="start-btn-sub" id="start-btn-sub">НОЧЬ 1 · 100%</span>
+                  <span class="start-btn-glow" aria-hidden="true"></span>
+                </button>
+
+                <div class="record-plaque">
+                  <span class="plaque-screw left"></span>
+                  <span class="plaque-text">ЛУЧШИЙ РЕЗУЛЬТАТ</span>
+                  <b id="lobby-record">Ночь 7</b>
+                  <span class="plaque-owner" id="lobby-record-owner">Предыдущий стажер</span>
+                  <span class="plaque-screw right"></span>
+                </div>
+
+                <div class="menu-buttons">
+                  <button class="menu-btn" type="button" data-open="diary">
+                    <span class="menu-btn-icon">▤</span>
+                    <span><b>ЗАПИСИ</b><small>дневник стажёра</small></span>
+                  </button>
+                  <button class="menu-btn" type="button" data-open="shop">
+                    <span class="menu-btn-icon">▥</span>
+                    <span><b>КУПИТЬ</b><small>автомат</small></span>
+                  </button>
+                  <button class="menu-btn" type="button" data-open="info">
+                    <span class="menu-btn-icon">?</span>
+                    <span><b>ИНФО</b><small>правила смены</small></span>
+                  </button>
+                  <button class="menu-btn menu-btn-danger" type="button" data-open="exit">
+                    <span class="menu-btn-icon">⏻</span>
+                    <span><b>ВЫХОД</b><small>ты уверен?</small></span>
+                  </button>
+                </div>
+
+                <button id="btn-reverse" class="reverse-btn hidden" type="button">
+                  <span>◈</span> SIGNAL LOST: REVERSE <small>секретный режим</small>
+                </button>
+
+                <div class="terminal-footer">
+                  <span>НЕ ДОВЕРЯЙ ТИШИНЕ</span>
+                  <span id="lobby-clock">12:00 AM</span>
+                </div>
+              </div>
+            </div>
+            <div class="terminal-stand">
+              <span class="vent"></span><span class="vent"></span><span class="vent"></span>
+              <span class="stand-light"></span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="lobby-side lobby-vending" aria-hidden="true">
+          <div class="vending-glow"></div>
+          <div class="vending-body">
+            <div class="vending-top">COLD DRINKS<br /><span>25¢</span></div>
+            <div class="vending-window">
+              <span class="can c1"></span><span class="can c2"></span><span class="can c3"></span>
+              <span class="can c4"></span><span class="can c5"></span><span class="can c6"></span>
+            </div>
+            <div class="vending-slot"></div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="lobby-footer">
+        <span>FAZBEAR ENTERTAINMENT © 1987</span>
+        <span class="footer-warn">СИГНАЛ НЕСТАБИЛЕН</span>
+        <span>СМЕНА 12:00 — 06:00</span>
+      </footer>
+    </section>
+
+    <!-- ================= ИГРА ================= -->
+    <section id="game" class="screen" aria-label="Ночная смена">
+      <canvas id="office-canvas" class="scene-canvas"></canvas>
+      <div class="game-grain" aria-hidden="true"></div>
+      <div class="game-vignette" aria-hidden="true"></div>
+      <div id="fx-glitch" class="fx-glitch" aria-hidden="true"></div>
+      <div id="fx-red" class="fx-red" aria-hidden="true"></div>
+
+      <header class="hud">
+        <div class="hud-left">
+          <div class="hud-night">НОЧЬ <b id="hud-night">1</b></div>
+          <div class="hud-clock" id="hud-clock">12:00 AM</div>
+          <div class="hud-speed" id="hud-speed">Скорость 100%</div>
+        </div>
+        <div class="hud-bars">
+          <div class="bar-group">
+            <div class="bar-label"><span>ЭНЕРГИЯ</span><b id="hud-energy-text">100%</b></div>
+            <div class="bar energy"><span id="hud-energy-fill"></span></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label"><span>HP</span><b id="hud-hp-text">100</b></div>
+            <div class="bar hp"><span id="hud-hp-fill"></span></div>
+          </div>
+        </div>
+        <div class="hud-right">
+          <div class="coin-chip small">
+            <span class="coin-dot"></span><b id="hud-coins">0</b><small>за смену</small>
+          </div>
+          <button id="btn-pause" class="icon-btn" type="button" aria-label="Пауза">II</button>
+        </div>
+      </header>
+
+      <div class="hud-warnings" id="hud-warnings">
+        <div class="warning-pill hidden" id="warn-door">В КОРИДОРЕ ДВИЖЕНИЕ</div>
+        <div class="warning-pill hidden" id="warn-forgotten">СИГНАЛ ИСКАЖЁН</div>
+        <div class="warning-pill hidden" id="warn-ransom">RANSOM В СЕТИ</div>
+        <div class="warning-pill hidden" id="warn-blackout">ЭНЕРГИЯ ОТКЛЮЧЕНА</div>
+      </div>
+
+      <div class="game-controls">
+        <button id="btn-door" class="control-btn door-btn" type="button" aria-label="Дверь">
+          <span class="control-icon">▐▌</span>
+          <span class="control-main">ДВЕРЬ</span>
+          <span class="control-state" id="door-state">ОТКРЫТА</span>
+          <span class="control-key">D</span>
+          <span class="door-danger" aria-hidden="true"></span>
+        </button>
+        <button id="btn-flash" class="control-btn" type="button" aria-label="Фонарик">
+          <span class="control-icon">◉</span>
+          <span class="control-main">ФОНАРИК</span>
+          <span class="control-state" id="flash-state">ВЫКЛ</span>
+          <span class="control-key">L</span>
+        </button>
+        <button id="btn-tablet" class="control-btn tablet-btn" type="button" aria-label="Камеры">
+          <span class="control-icon">▤</span>
+          <span class="control-main">КАМЕРЫ</span>
+          <span class="control-state" id="tablet-state">ЗАКРЫТ</span>
+          <span class="control-key">C</span>
+        </button>
+      </div>
+
+      <div class="desk-hint">
+        <span>1—4 камеры</span><span>C планшет</span><span>D дверь</span><span>L фонарик</span>
+      </div>
+
+      <!-- Планшет -->
+      <div id="tablet" class="tablet hidden" aria-label="Планшет наблюдения">
+        <div class="tablet-shell">
+          <div class="tablet-top">
+            <div class="tablet-brand"><i class="rec-dot"></i> FAZBEAR SECURITY TABLET</div>
+            <div class="tablet-reading">НОЧЬ <b id="tab-night">1</b> · <span id="tab-clock">12:00 AM</span> · СИГНАЛ <b id="tab-signal">98%</b></div>
+            <div class="anger-wrap" title="Внимание Ransom">
+              <span>RANSOM</span>
+              <div class="anger-bar"><i id="anger-fill"></i></div>
+            </div>
+          </div>
+          <div class="cam-stage">
+            <canvas id="cam-canvas"></canvas>
+            <div class="cam-overlay" aria-hidden="true">
+              <div class="cam-hud-top">
+                <span class="cam-name" id="cam-name">КАМЕРА 1 · СЦЕНА</span>
+                <span class="cam-rec"><i class="rec-dot"></i> REC</span>
+              </div>
+              <div class="cam-hud-bottom">
+                <span id="cam-status">СИГНАЛ СТАБИЛЕН</span>
+                <span id="cam-time">00:00:00</span>
+              </div>
+              <div class="cam-crosshair" aria-hidden="true"></div>
+            </div>
+            <div id="cam-nosignal" class="cam-nosignal hidden">
+              <div>НЕТ СИГНАЛА</div>
+              <small id="cam-repair">ВОССТАНОВЛЕНИЕ...</small>
+            </div>
+            <div id="cam-freeze" class="cam-freeze hidden">
+              <div>ПЛАНШЕТ ЗАБЛОКИРОВАН</div>
+              <small>RANSOM ПЕРЕХВАТИЛ КАНАЛ</small>
+            </div>
+          </div>
+          <div class="cam-select" id="cam-select">
+            <button class="cam-btn is-active" data-cam="0" type="button">
+              <span class="cam-btn-num">1</span>
+              <span class="cam-btn-name">СЦЕНА</span>
+              <span class="cam-btn-state" data-state="0"></span>
+            </button>
+            <button class="cam-btn" data-cam="1" type="button">
+              <span class="cam-btn-num">2</span>
+              <span class="cam-btn-name">АРКАДА</span>
+              <span class="cam-btn-state" data-state="1"></span>
+            </button>
+            <button class="cam-btn" data-cam="2" type="button">
+              <span class="cam-btn-num">3</span>
+              <span class="cam-btn-name">КУХНЯ</span>
+              <span class="cam-btn-state" data-state="2"></span>
+            </button>
+            <button class="cam-btn" data-cam="3" type="button">
+              <span class="cam-btn-num">4</span>
+              <span class="cam-btn-name">КОРИДОР</span>
+              <span class="cam-btn-state" data-state="3"></span>
+            </button>
+          </div>
+          <div class="tablet-bottom">
+            <span class="tablet-help">Смотри в камеру, чтобы найти Forgotten. Не дёргай камеры слишком часто.</span>
+            <button id="btn-close-tablet" class="tablet-close" type="button">ОПУСТИТЬ ПЛАНШЕТ <small>ESC</small></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="lockout" class="lockout hidden" aria-hidden="true">
+        <div class="lockout-inner">
+          <span class="lockout-code">ERR_SIGNAL_LOCK // 0xRNSM</span>
+          <b>ПЛАНШЕТ ЗАБЛОКИРОВАН</b>
+          <small>RANSOM ПЕРЕХВАТИЛ КАНАЛ</small>
+          <span class="lockout-bar"><i id="lockout-fill"></i></span>
+        </div>
+      </div>
+
+      <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+      <div id="jumpscare" class="jumpscare hidden" aria-hidden="true">
+        <canvas id="jumpscare-canvas"></canvas>
+        <div class="jumpscare-text">ТЫ НЕ УСПЕЛ</div>
+      </div>
+    </section>
+
+    <!-- ================= МОДАЛКИ ================= -->
+    <div class="overlay hidden" id="overlay-diary" role="dialog" aria-modal="true" aria-label="Дневник стажёра">
+      <div class="modal diary-modal">
+        <button class="modal-close" data-close type="button" aria-label="Закрыть">×</button>
+        <header class="modal-head">
+          <div>
+            <p class="eyebrow">ЛИЧНЫЕ ЗАПИСИ · НЕ ДЛЯ АДМИНИСТРАЦИИ</p>
+            <h2>ДНЕВНИК СТАЖЁРА</h2>
+          </div>
+          <div class="diary-count" id="diary-count">0 / 0 записей</div>
+        </header>
+        <div class="diary-tabs" role="tablist">
+          <button class="tab is-active" data-tab="dossier" type="button">ДОСЬЕ</button>
+          <button class="tab" data-tab="notes" type="button">ЗАПИСИ</button>
+          <button class="tab" data-tab="mine" type="button">МОИ ЗАМЕТКИ</button>
+        </div>
+        <div class="diary-body">
+          <div class="diary-list" id="diary-list"></div>
+          <div class="diary-content">
+            <div id="diary-dossier" class="pane is-active"></div>
+            <div id="diary-notes" class="pane"></div>
+            <div id="diary-mine" class="pane">
+              <p class="notes-intro">Пиши сюда всё, что заметил. Блокнот сохраняется автоматически в память терминала. Файл — кнопкой ниже.</p>
+              <textarea id="player-notes" maxlength="4000" placeholder="Ночь 1. Он не любит, когда двигаешься..."></textarea>
+              <div class="notes-actions">
+                <span class="notes-saved" id="notes-saved">СОХРАНЕНО</span>
+                <button class="ghost-btn" id="btn-download-notes" type="button">СКАЧАТЬ ФАЙЛ</button>
+                <button class="ghost-btn" id="btn-export-save" type="button">ЭКСПОРТ СОХРАНЕНИЯ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-shop" role="dialog" aria-modal="true" aria-label="Магазин">
+      <div class="modal shop-modal">
+        <button class="modal-close" data-close type="button" aria-label="Закрыть">×</button>
+        <header class="modal-head">
+          <div>
+            <p class="eyebrow">АВТОМАТ В УГОЛКЕ · ОН ВСЁ ВИДИТ</p>
+            <h2>КУПИТЬ СНАРЯЖЕНИЕ</h2>
+          </div>
+          <div class="shop-balance"><span class="coin-dot"></span><b id="shop-coins">0</b><small>монет</small></div>
+        </header>
+        <div class="shop-grid" id="shop-grid"></div>
+        <p class="shop-hint">Монеты: +10 за смену, +1 к выплате каждые 5 ночей, +50 за каждую 5-ю ночь. Смерть сжигает монеты текущей смены.</p>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-info" role="dialog" aria-modal="true" aria-label="Правила">
+      <div class="modal info-modal">
+        <button class="modal-close" data-close type="button" aria-label="Закрыть">×</button>
+        <header class="modal-head">
+          <div>
+            <p class="eyebrow">ПАМЯТКА НОВОГО СОТРУДНИКА</p>
+            <h2>ПРАВИЛА СМЕНЫ</h2>
+          </div>
+        </header>
+        <div class="rules-hero">
+          <span>1 ДВЕРЬ.</span><span>4 КАМЕРЫ.</span><span>100 HP.</span><span>НЕ ДОВЕРЯЙ ТИШИНЕ.</span>
+        </div>
+        <div class="info-grid">
+          <article class="info-card">
+            <h3>RANSOM</h3>
+            <p>Ломает камеры и злится, когда ты дёргаешь планшет. С ночи 20 может заморозить его на 2 секунды. С ночи 5 — вывести из строя сразу две камеры.</p>
+            <span class="tag">ПОМЕХИ 3 → 1.5 СЕК</span>
+          </article>
+          <article class="info-card">
+            <h3>BUSH</h3>
+            <p>Идёт по камерам 1 → 4. Когда он в коридоре — закрой дверь. Удар отнимает 30–50 HP и оставляет шум в ушах. С ночи 30 бьёт дважды.</p>
+            <span class="tag">ПУТЬ 20 → 5.8 СЕК</span>
+          </article>
+          <article class="info-card">
+            <h3>FORGOTTEN</h3>
+            <p>Появляется на камере и исчезает, когда таймер дойдёт до нуля. Найди его взглядом. С ночи 10 прячется за сломанными камерами, с ночи 15 — на двух сразу.</p>
+            <span class="tag">ТАЙМЕР 30 → 5.5 СЕК</span>
+          </article>
+          <article class="info-card">
+            <h3>ЭНЕРГИЯ</h3>
+            <p>Дверь, планшет и фонарик жрут заряд. Закрытая дверь — 1.2%/сек, планшет — 0.35%/сек, фонарик — 0.7%/сек. Ноль энергии = темнота и очень злой гость.</p>
+            <span class="tag">100% + БАТАРЕЯ</span>
+          </article>
+          <article class="info-card">
+            <h3>БЕСКОНЕЧНОСТЬ</h3>
+            <p>Каждая ночь ускоряет всех на 5%. Прогресс ночей не теряется после смерти. Монеты текущей смены — теряются. Награды: дневник каждые 10 ночей, скин на 25, Reverse на 50.</p>
+            <span class="tag">ПРЕДЕЛА НЕТ</span>
+          </article>
+          <article class="info-card">
+            <h3>УПРАВЛЕНИЕ</h3>
+            <p><b>1–4</b> — камеры · <b>C</b> — планшет · <b>D</b> — дверь · <b>L</b> — фонарик · <b>ESC</b> — закрыть. На телефоне — кнопки внизу.</p>
+            <span class="tag">ПК И МОБИЛЬНЫЕ</span>
+          </article>
+        </div>
+        <div class="credits-line">FAZBEAR ENTERTAINMENT не несёт ответственности за сохранность вашего сигнала.</div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-exit" role="dialog" aria-modal="true" aria-label="Выход">
+      <div class="modal exit-modal">
+        <p class="eyebrow">ЗАВЕРШЕНИЕ РАБОТЫ</p>
+        <h2>ТЫ УВЕРЕН?</h2>
+        <p class="exit-line">Он будет ждать.</p>
+        <div class="exit-actions">
+          <button class="ghost-btn" id="btn-stay" type="button">ОСТАТЬСЯ</button>
+          <button class="danger-btn" id="btn-leave" type="button">ВЫЙТИ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Брифинг -->
+    <div class="overlay hidden" id="overlay-brief" role="dialog" aria-modal="true" aria-label="Начало смены">
+      <div class="modal brief-modal">
+        <p class="eyebrow" id="brief-eyebrow">СМЕНА ПРИНЯТА</p>
+        <h2>НОЧЬ <span id="brief-night">1</span></h2>
+        <div class="brief-grid">
+          <div><span>СКОРОСТЬ</span><b id="brief-speed">100%</b></div>
+          <div><span>УРОН BUSH</span><b id="brief-damage">30 HP</b></div>
+          <div><span>ТАЙМЕР FORGOTTEN</span><b id="brief-forgotten">30 сек</b></div>
+          <div><span>ЭНЕРГИЯ</span><b id="brief-energy">100%</b></div>
+        </div>
+        <p class="brief-feature" id="brief-feature">Обучение. Слушай шаги. Смотри камеры. Закрывай дверь.</p>
+        <p class="brief-tip" id="brief-tip">Совет: открой планшет, проверь камеры 1–4 и вернись в офис до 6:00 AM.</p>
+        <button class="start-btn compact" id="btn-enter-office" type="button"><span class="start-btn-label">ВОЙТИ В ОФИС</span></button>
+      </div>
+    </div>
+
+    <!-- Победа -->
+    <div class="overlay hidden" id="overlay-win" role="dialog" aria-modal="true" aria-label="Смена окончена">
+      <div class="modal result-modal win-modal">
+        <p class="eyebrow">СИГНАЛ СТАБИЛЕН</p>
+        <h2>6:00 AM</h2>
+        <p class="result-sub">Ты дожил до утра. <span id="win-night-label">Ночь 1</span> пройдена.</p>
+        <div class="reward-lines">
+          <div><span>Монеты за смену</span><b id="win-survival">+0</b></div>
+          <div><span>Выплата за ночь</span><b id="win-base">+10</b></div>
+          <div><span>Бонус за 5 ночей</span><b id="win-milestone">+0</b></div>
+          <div class="total"><span>ИТОГО</span><b id="win-total">+10</b></div>
+        </div>
+        <p class="unlock-line" id="win-unlock"></p>
+        <div class="result-actions">
+          <button class="ghost-btn" id="btn-win-lobby" type="button">В ЛОББИ</button>
+          <button class="start-btn compact" id="btn-next-night" type="button"><span class="start-btn-label">СЛЕДУЮЩАЯ НОЧЬ →</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Смерть -->
+    <div class="overlay hidden" id="overlay-death" role="dialog" aria-modal="true" aria-label="Смерть">
+      <div class="modal result-modal death-modal">
+        <p class="eyebrow danger">СИГНАЛ ПОТЕРЯН</p>
+        <h2>ТЕБЯ НАШЛИ</h2>
+        <p class="result-sub" id="death-line">Тишина была слишком тихой.</p>
+        <div class="reward-lines">
+          <div><span>Ночь</span><b id="death-night">1</b></div>
+          <div><span>Пройдено</span><b id="death-time">00:42</b></div>
+          <div><span>Сгорело монет</span><b class="lost" id="death-coins">−0</b></div>
+        </div>
+        <p class="death-note">Прогресс ночей сохранён. Монеты текущей смены потеряны навсегда.</p>
+        <div class="result-actions">
+          <button class="ghost-btn" id="btn-death-lobby" type="button">В ЛОББИ</button>
+          <button class="start-btn compact danger" id="btn-retry" type="button"><span class="start-btn-label">ПОПРОБОВАТЬ СНОВА</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пауза -->
+    <div class="overlay hidden" id="overlay-pause" role="dialog" aria-modal="true" aria-label="Пауза">
+      <div class="modal pause-modal">
+        <p class="eyebrow">СИГНАЛ ПРИОСТАНОВЛЕН</p>
+        <h2>ПАУЗА</h2>
+        <p class="result-sub">Он тоже ждёт. Но пока — не двигается.</p>
+        <div class="result-actions">
+          <button class="ghost-btn" id="btn-abandon" type="button">СДАТЬСЯ</button>
+          <button class="start-btn compact" id="btn-resume" type="button"><span class="start-btn-label">ПРОДОЛЖИТЬ</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Разблокировка -->
+    <div class="overlay hidden" id="overlay-unlock" role="dialog" aria-modal="true" aria-label="Разблокировано">
+      <div class="modal unlock-modal">
+        <p class="eyebrow">НОВЫЙ СИГНАЛ</p>
+        <div class="unlock-icon" id="unlock-icon">◈</div>
+        <h2 id="unlock-title">РАЗБЛОКИРОВАНО</h2>
+        <p id="unlock-text"></p>
+        <button class="start-btn compact" id="btn-unlock-ok" type="button"><span class="start-btn-label">ПРИНЯТЬ</span></button>
+      </div>
+    </div>
+
+    <!-- Reverse -->
+    <div class="overlay reverse-overlay hidden" id="overlay-reverse" role="dialog" aria-modal="true" aria-label="Signal Lost Reverse">
+      <div class="reverse-shell">
+        <header class="reverse-head">
+          <div>
+            <p class="eyebrow">СЕКРЕТНЫЙ РЕЖИМ · ТЫ — СИГНАЛ</p>
+            <h2>SIGNAL LOST: <span>REVERSE</span></h2>
+          </div>
+          <button class="modal-close" id="btn-reverse-close" type="button" aria-label="Закрыть">×</button>
+        </header>
+        <div class="reverse-body">
+          <div class="reverse-scene">
+            <canvas id="reverse-canvas"></canvas>
+            <div class="reverse-lives" id="reverse-lives"></div>
+            <div class="reverse-status" id="reverse-status"></div>
+          </div>
+          <div class="reverse-side">
+            <div class="guard-monitor">
+              <span class="guard-label">ОХРАННИК СМОТРИТ</span>
+              <strong id="reverse-guard">КАМЕРА 1</strong>
+              <span id="reverse-door" class="guard-door">ДВЕРЬ ОТКРЫТА</span>
+            </div>
+            <div class="reverse-progress">
+              <span>ТВОЙ ПУТЬ</span>
+              <div class="reverse-nodes" id="reverse-nodes"></div>
+            </div>
+            <div class="reverse-log" id="reverse-log"></div>
+            <div class="reverse-actions" id="reverse-actions">
+              <button data-action="sneak" type="button"><b>КРАСТЬСЯ</b><small>+1 комната</small></button>
+              <button data-action="wait" type="button"><b>ЗАТАИТЬСЯ</b><small>сбросить шум</small></button>
+              <button data-action="noise" type="button"><b>ШУМ</b><small>отвлечь охрану</small></button>
+              <button data-action="attack" type="button" class="attack"><b>АТАКА</b><small>у двери</small></button>
+            </div>
+            <p class="reverse-help" id="reverse-help">Ты — RANSOM. Смотри, куда направлена камера, и двигайся, когда охранник отвернулся.</p>
+          </div>
+        </div>
+        <div class="reverse-result hidden" id="reverse-result">
+          <p class="eyebrow" id="reverse-result-eyebrow">СИГНАЛ</p>
+          <h2 id="reverse-result-title">ОХРАННИК ПРОИГРАЛ</h2>
+          <p id="reverse-result-text"></p>
+          <div class="result-actions">
+            <button class="ghost-btn" id="btn-reverse-exit" type="button">В ЛОББИ</button>
+            <button class="start-btn compact" id="btn-reverse-again" type="button"><span class="start-btn-label">ЕЩЁ РАЗ</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
