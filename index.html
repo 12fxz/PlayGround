@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#050706">
+  <meta name="description" content="ROOMS — хоррор-выживание в бесконечных комнатах подземной лаборатории «Сектор R». Дойди до комнаты 300.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23050706'/%3E%3Crect x='5' y='3' width='6' height='10' fill='%238dff9e'/%3E%3C/svg%3E">
+  <title>ROOMS — Сектор R</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============================ ЛОББИ ============================ -->
+    <section id="lobby" class="screen lobby" aria-label="Лобби">
+      <div class="lobby-vignette"></div>
+      <div class="lamp" aria-hidden="true">
+        <div class="lamp-wire"></div>
+        <div class="lamp-shade"></div>
+        <div class="lamp-bulb"></div>
+        <div class="lamp-glow"></div>
+      </div>
+      <div class="dust" id="dust" aria-hidden="true"></div>
+
+      <header class="lobby-header">
+        <div class="eyebrow">ПРОТОКОЛ ИЗОЛЯЦИИ · ОБЪЕКТ 12 · 1997</div>
+        <h1 class="logo" data-text="ROOMS">ROOMS</h1>
+        <div class="logo-sub">СЕКТОР <b>R</b></div>
+      </header>
+
+      <main class="lobby-main">
+        <aside class="panel record-panel" aria-label="Таблица рекордов">
+          <div class="panel-head">
+            <span>ТАБЛИЦА РЕКОРДОВ</span>
+            <span class="led" aria-hidden="true"></span>
+          </div>
+          <div class="best">
+            <div class="best-label">ЛУЧШИЙ РЕЗУЛЬТАТ</div>
+            <div class="best-num"><span id="bestRoom">000</span><small>КОМНАТА</small></div>
+          </div>
+          <ol id="recordsList" class="records-list">
+            <li class="empty">Пока никто не вернулся.</li>
+          </ol>
+          <div class="panel-foot">ДАННЫЕ ХРАНЯТСЯ ЛОКАЛЬНО</div>
+        </aside>
+
+        <div class="door-column">
+          <button id="doorBtn" class="big-door" aria-label="Открыть дверь номер ноль и начать игру">
+            <span class="door-frame">
+              <span class="door-panel">
+                <span class="door-number">0</span>
+                <span class="door-handle"></span>
+                <span class="door-glow"></span>
+              </span>
+            </span>
+            <span class="door-label">ДВЕРЬ №0</span>
+            <span class="door-enter">ВОЙТИ</span>
+          </button>
+          <div class="kit" aria-label="Инвентарь перед стартом">
+            <div class="kit-item">
+              <span class="kit-ico" aria-hidden="true">▮</span>
+              <span><b>ФОНАРИК</b><small>ЗАРЯД 100%</small></span>
+            </div>
+            <div class="kit-item">
+              <span class="kit-ico" aria-hidden="true">▤</span>
+              <span><b>РЮКЗАК</b><small>ПУСТ</small></span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel rules-panel" aria-label="Правила">
+          <div class="panel-head">
+            <span>ПРАВИЛА</span>
+            <span class="led amber" aria-hidden="true"></span>
+          </div>
+          <ol class="rules">
+            <li><span>01</span><p>Не двигайся, когда видишь <b>ЕГО</b>.</p></li>
+            <li><span>02</span><p>Прячься в шкафы. <em>Держи фонарик включённым.</em></p></li>
+            <li><span>03</span><p>Береги заряд фонаря. Батарейки — в пути.</p></li>
+            <li><span>04</span><p>Дверь впереди — это ещё не выход.</p></li>
+          </ol>
+          <div class="chalk-line"></div>
+          <div class="rules-goal">ЦЕЛЬ: КОМНАТА <b>300</b></div>
+        </aside>
+      </main>
+
+      <footer class="lobby-footer">
+        <div class="controls-strip">
+          <span><kbd>W</kbd><kbd>S</kbd> комната</span>
+          <span><kbd>A</kbd><kbd>D</kbd> осмотреться</span>
+          <span><kbd>E</kbd> дверь / шкаф</span>
+          <span><kbd>F</kbd> фонарик</span>
+          <span><kbd>SHIFT</kbd> замереть</span>
+          <span><kbd>TAB</kbd> инвентарь</span>
+        </div>
+        <div class="lobby-actions">
+          <button id="btnStart" class="btn primary" type="button"><i class="dot green"></i>НАЧАТЬ ИГРУ</button>
+          <button id="btnSettings" class="btn" type="button"><i class="dot amber"></i>НАСТРОЙКИ</button>
+          <button id="btnExit" class="btn ghost" type="button"><i class="dot red"></i>ВЫХОД</button>
+        </div>
+        <div class="lobby-note">НАУШНИКИ РЕКОМЕНДУЮТСЯ · СВЕТ В КОМНАТЕ ЛУЧШЕ ВЫКЛЮЧИТЬ</div>
+      </footer>
+    </section>
+
+    <!-- ============================ ИГРА ============================ -->
+    <section id="game" class="screen game" aria-label="Игра" hidden>
+      <div id="stage">
+        <canvas id="scene" width="720" height="420" aria-label="Вид от первого лица"></canvas>
+        <div class="crt" aria-hidden="true"></div>
+        <div class="screen-vignette" aria-hidden="true"></div>
+
+        <div id="hud">
+          <div class="hud-top">
+            <div class="room-block">
+              <div class="hud-label">КОМНАТА</div>
+              <div class="room-number"><span id="roomNow">001</span><span class="room-total">/ 300</span></div>
+              <div class="progress"><i id="roomProgress"></i></div>
+            </div>
+
+            <div class="stats">
+              <div class="stat" title="Здоровье">
+                <span class="stat-label">HP</span>
+                <div class="bar hp"><i id="hpBar"></i></div>
+                <span class="stat-val" id="hpVal">100</span>
+              </div>
+              <div class="stat" title="Заряд фонарика">
+                <span class="stat-label">ЗАРЯД</span>
+                <div class="bar batt"><i id="battBar"></i></div>
+                <span class="stat-val" id="battVal">100%</span>
+              </div>
+              <div class="flash-line" id="flashLine"><span class="flash-dot"></span><span id="flashText">ФОНАРИК ВКЛ</span></div>
+            </div>
+
+            <button id="btnPause" class="pause-btn" type="button" aria-label="Пауза">II</button>
+          </div>
+
+          <div id="eventBanner" class="event-banner" hidden>
+            <span class="event-kicker" id="eventKicker">ВНИМАНИЕ</span>
+            <span class="event-title" id="eventTitle"></span>
+            <span class="event-sub" id="eventSub"></span>
+          </div>
+
+          <div id="freezeText" class="freeze-text" hidden><span>НЕ ДВИГАЙСЯ</span></div>
+
+          <div id="bottomHud">
+            <div id="hintBar" class="hint-bar">W — идти вперёд · E — открыть дверь · F — фонарик</div>
+            <div id="subtitle" class="subtitle" aria-live="polite"></div>
+          </div>
+          <div id="toast" class="toast" aria-live="polite"></div>
+
+          <div class="hud-keys" aria-hidden="true">
+            <span><kbd>W</kbd>/<kbd>S</kbd> комната</span>
+            <span><kbd>A</kbd>/<kbd>D</kbd> взгляд</span>
+            <span><kbd>E</kbd> действие</span>
+            <span><kbd>F</kbd> фонарик</span>
+            <span><kbd>SHIFT</kbd> замереть</span>
+            <span><kbd>TAB</kbd> рюкзак</span>
+          </div>
+
+          <div id="damageFlash" class="damage-flash" aria-hidden="true"></div>
+          <div id="hideBadge" class="hide-badge" hidden>В ШКАФУ · НЕ ДЫШИ</div>
+          <div id="fade" class="fade" aria-hidden="true"></div>
+        </div>
+
+        <div id="touchControls" class="touch-controls" hidden>
+          <div class="touch-look">
+            <button class="tbtn look" data-hold="lookLeft" type="button" aria-label="Осмотреться влево">◀</button>
+            <button class="tbtn look" data-hold="lookRight" type="button" aria-label="Осмотреться вправо">▶</button>
+          </div>
+          <div class="touch-move">
+            <button class="tbtn wide" data-tap="forward" type="button" aria-label="Идти вперёд">▲</button>
+            <button class="tbtn wide small" data-tap="back" type="button" aria-label="Идти назад">▼</button>
+          </div>
+          <div class="touch-actions">
+            <button class="tbtn action" data-tap="action" type="button" aria-label="Действие: дверь или шкаф">E<small>ДЕЙСТВИЕ</small></button>
+            <button class="tbtn" data-tap="flash" type="button" aria-label="Фонарик">F<small>СВЕТ</small></button>
+            <button class="tbtn" data-tap="freeze" type="button" aria-label="Замереть">II<small>ЗАМЕРЕТЬ</small></button>
+            <button class="tbtn" data-tap="inventory" type="button" aria-label="Инвентарь">▤<small>РЮКЗАК</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ НАСТРОЙКИ ============================ -->
+    <div id="settingsModal" class="modal" hidden>
+      <div class="modal-card settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-head">
+          <h2 id="settingsTitle">НАСТРОЙКИ</h2>
+          <button class="x-btn" data-close="settingsModal" type="button" aria-label="Закрыть">×</button>
+        </div>
+        <div class="setting">
+          <label for="volume">ГРОМКОСТЬ <output id="volumeOut">70%</output></label>
+          <input id="volume" type="range" min="0" max="100" value="70">
+          <div class="setting-foot">Рёв, шёпот и эхо шагов</div>
+        </div>
+        <div class="setting">
+          <label for="sensitivity">ЧУВСТВИТЕЛЬНОСТЬ <output id="sensitivityOut">100%</output></label>
+          <input id="sensitivity" type="range" min="40" max="220" value="100">
+          <div class="setting-foot">Скорость обзора мышью, пальцем и клавишами</div>
+        </div>
+        <div class="setting">
+          <label for="brightness">ЯРКОСТЬ <output id="brightnessOut">100%</output></label>
+          <input id="brightness" type="range" min="60" max="140" value="100">
+          <div class="setting-foot">Освещение интерьера и темнота</div>
+        </div>
+        <div class="modal-actions">
+          <button id="settingsDone" class="btn primary" type="button">ГОТОВО</button>
+          <button id="muteToggle" class="btn small" type="button">ЗВУК: ВКЛ</button>
+        </div>
+        <p class="settings-tip">Настройки сохраняются в этом браузере.</p>
+      </div>
+    </div>
+
+    <!-- ============================ ПАУЗА ============================ -->
+    <div id="pauseModal" class="modal pause-modal" hidden>
+      <div class="modal-card pause-card" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+        <div class="modal-head">
+          <h2 id="pauseTitle">ПАУЗА</h2>
+        </div>
+        <div class="pause-room">КОМНАТА <b id="pauseRoom">001</b></div>
+        <div class="pause-actions">
+          <button id="btnResume" class="btn primary" type="button">ПРОДОЛЖИТЬ</button>
+          <button id="btnPauseSettings" class="btn" type="button">НАСТРОЙКИ</button>
+          <button id="btnPauseInventory" class="btn" type="button">ИНВЕНТАРЬ</button>
+          <button id="btnLeaveRun" class="btn ghost" type="button">ВЫЙТИ В ЛОББИ</button>
+        </div>
+        <p class="pause-tip">ESC — продолжить</p>
+      </div>
+    </div>
+
+    <!-- ============================ ИНВЕНТАРЬ ============================ -->
+    <div id="inventoryModal" class="modal" hidden>
+      <div class="modal-card inventory-card" role="dialog" aria-modal="true" aria-labelledby="invTitle">
+        <div class="modal-head">
+          <h2 id="invTitle">РЮКЗАК</h2>
+          <button class="x-btn" data-close="inventoryModal" type="button" aria-label="Закрыть">×</button>
+        </div>
+        <div class="inv-item">
+          <div class="inv-icon">▮</div>
+          <div class="inv-info">
+            <b>ФОНАРИК</b>
+            <div class="bar batt big"><i id="invBattBar"></i></div>
+            <small id="invBattText">Заряд 100%</small>
+          </div>
+          <span id="invBattPct" class="inv-pct">100%</span>
+        </div>
+        <div class="inv-item">
+          <div class="inv-icon">▤</div>
+          <div class="inv-info">
+            <b>БАТАРЕЙКИ</b>
+            <small>Обычные щелочные. Хватит на 35% заряда.</small>
+          </div>
+          <span class="inv-count" id="invBatteryCount">x0</span>
+        </div>
+        <button id="useBattery" class="btn small" type="button">ВСТАВИТЬ БАТАРЕЙКУ <kbd>R</kbd></button>
+        <div class="inv-status">
+          <span>HP <b id="invHp">100</b></span>
+          <span>КОМНАТА <b id="invRoom">001</b></span>
+        </div>
+        <p class="inv-tip">Пока рюкзак открыт, комплекс ждёт. Но не злоупотребляй.</p>
+      </div>
+    </div>
+
+    <!-- ============================ СМЕРТЬ ============================ -->
+    <div id="gameover" class="overlay-screen" hidden>
+      <div class="overlay-noise"></div>
+      <div class="overlay-content death-content">
+        <div class="death-kicker" id="deathKicker">СИГНАЛ ПОТЕРЯН</div>
+        <h2 class="death-title">ТЫ УМЕР</h2>
+        <p class="death-cause" id="deathCause">A-60 нашёл тебя.</p>
+        <div class="result-grid">
+          <div><small>ДОСТИГНУТА КОМНАТА</small><b id="deathRoom">001</b></div>
+          <div><small>ЛУЧШИЙ РЕЗУЛЬТАТ</small><b id="deathBest">001</b></div>
+        </div>
+        <div class="overlay-actions">
+          <button id="btnRetry" class="btn primary" type="button">ПОПРОБОВАТЬ СНОВА</button>
+          <button id="btnDeathLobby" class="btn ghost" type="button">В ЛОББИ</button>
+        </div>
+        <p class="overlay-note">Твои шаги ещё слышны в коридоре.</p>
+      </div>
+    </div>
+
+    <!-- ============================ ПОБЕДА ============================ -->
+    <div id="victory" class="overlay-screen win" hidden>
+      <div class="win-light" aria-hidden="true"></div>
+      <div class="overlay-content win-content">
+        <div class="win-kicker">ПРОТОКОЛ ЗАВЕРШЁН</div>
+        <h2 class="win-title">КОМНАТА 300</h2>
+        <p class="win-sub">Ты дошёл. Дверь открылась.</p>
+        <div class="result-grid">
+          <div><small>ЗДОРОВЬЕ</small><b id="winHp">100</b></div>
+          <div><small>БАТАРЕЙКИ В РЮКЗАКЕ</small><b id="winBatteries">0</b></div>
+        </div>
+        <div class="overlay-actions">
+          <button id="btnWinAgain" class="btn primary" type="button">ЕЩЁ РАЗ</button>
+          <button id="btnWinLobby" class="btn ghost" type="button">В ЛОББИ</button>
+        </div>
+        <p class="overlay-note">Снаружи — рассвет. Наверное.</p>
+      </div>
+    </div>
+
+    <!-- ============================ ВЫХОД ============================ -->
+    <div id="exitScreen" class="overlay-screen exit-screen" hidden>
+      <div class="overlay-noise"></div>
+      <div class="overlay-content">
+        <div class="exit-door" aria-hidden="true"></div>
+        <h2 class="exit-title">ВЫХОД</h2>
+        <p class="exit-sub">Дверь за твоей спиной закрыта. Комплекс не отпускает так просто.</p>
+        <div class="overlay-actions">
+          <button id="btnExitBack" class="btn primary" type="button">ВЕРНУТЬСЯ В ЛОББИ</button>
+        </div>
+        <p class="overlay-note">Спасибо, что заглянул в Сектор R.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <noscript>Для игры нужен JavaScript.</noscript>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>
